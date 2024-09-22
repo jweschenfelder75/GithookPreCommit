@@ -8,15 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="LibGit2Sharp">
-      <HintPath>libs\LibGit2Sharp.dll</HintPath>
-    </Reference>
+    <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="libs\LibGit2Sharp.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 
 </Project>
