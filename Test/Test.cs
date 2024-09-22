@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace GithookPreCommit
 {
     /// <summary>
-    /// 0Id 
+    /// $Id: f4f8a2d4fef90661299fe7614d63e89e9e2ccd98 byte2702 byte2702 2024-09-22T16:27:12.0000000 (prev commit) $
     /// 
     /// Documentation: https://www.codeproject.com/Articles/1161290/Save-Yourself-Some-Troubles-with-TortoiseGit-Pre-c
     /// </summary>
