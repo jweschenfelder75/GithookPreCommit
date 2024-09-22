@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace GithookPreCommit
 {
     /// <summary>
-    /// $Id$
+    /// $Id$ 
     /// 
     /// Documentation: https://www.codeproject.com/Articles/1161290/Save-Yourself-Some-Troubles-with-TortoiseGit-Pre-c
     /// </summary>
@@ -64,7 +64,7 @@ namespace GithookPreCommit
         /// <returns></returns>
         static bool ShouldFileBeChecked(string path)
         {
-            if (path == null || !File.Exists(path))
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
             {
                 return false;
             }
@@ -90,7 +90,7 @@ namespace GithookPreCommit
         /// <returns></returns>
         static bool HasNotForRepoMarker(string path)
         {
-            if (path is null || !File.Exists(path))
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
             {
                 return false;
             }
@@ -99,7 +99,7 @@ namespace GithookPreCommit
             {
                 using StreamReader reader = File.OpenText(path);
                 string? line = reader.ReadLine();
-                while (line is not null)
+                while (!string.IsNullOrWhiteSpace(line))
                 {
                     if (NotForRepoMarkerExpression.IsMatch(line))
                     {
@@ -125,7 +125,7 @@ namespace GithookPreCommit
         /// <returns></returns>
         static bool ReplaceCommitIdMarkerIfExists(string path)
         {
-            if (path is null || !File.Exists(path))
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
             {
                 return false;
             }
@@ -134,7 +134,7 @@ namespace GithookPreCommit
             {
                 string? repositoryPath = GetRepositoryPath();
                 Log($"RepositoryPath = {repositoryPath ?? string.Empty}");
-                if (repositoryPath is null || !Directory.Exists(repositoryPath))
+                if (!string.IsNullOrWhiteSpace(repositoryPath) || !Directory.Exists(repositoryPath))
                 {
                     return false;
                 }
@@ -163,11 +163,13 @@ namespace GithookPreCommit
         /// <returns></returns>
         static string? GetRepositoryPath()
         {
-            string workingDirectory = Environment.CurrentDirectory;
-            Log($"WorkingDirectory = {workingDirectory}");
-            DirectoryInfo? rootDirectory = Directory.GetParent(workingDirectory)?.Parent;
-            return (rootDirectory?.Parent is not null)
-                ? $@"{rootDirectory?.Parent?.FullName}\.git"
+            string? workingDirectory = Environment.CurrentDirectory;
+            workingDirectory = (!string.IsNullOrWhiteSpace(workingDirectory) && workingDirectory.EndsWith(@"\\"))
+                ? workingDirectory.Remove(workingDirectory.Length - 1)
+                : workingDirectory;
+            Log($"WorkingDirectory = {workingDirectory ?? string.Empty}");
+            return (!string.IsNullOrWhiteSpace(workingDirectory))
+                ? $@"{workingDirectory}\.git"
                 : null;
         }
 
@@ -184,7 +186,7 @@ namespace GithookPreCommit
             string? commitAuthor = headCommit?.Author.Name;
             string? commitCommitter = headCommit?.Committer.Name;
             DateTime? commitCommitterWhen = headCommit?.Committer.When.DateTime;
-            return string.Format($"{0}Id: {1} {2} {3} {4:o} (prev commit) {0}", 
+            return string.Format($"{0}Id: {1} {2} {3} {4:o} (prev commit) {0}",
                 "$", commitId, commitAuthor, commitCommitter, commitCommitterWhen);
         }
 
