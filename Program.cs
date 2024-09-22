@@ -29,14 +29,16 @@ namespace GithookPreCommit
                 string[] affectedPaths = File.ReadAllLines(args[0]);
                 foreach (string path in affectedPaths)
                 {
-                    if (ShouldFileBeChecked(path))
+                    if (!ShouldFileBeChecked(path))
                     {
+                        Log($"{path} is skipped.");
                         continue;
                     }
 
                     if (HasNotForRepoMarker(path))
                     {
                         string errorMessage = $"{NOT_FOR_REPO_MARKER} marker found in {path}";
+                        Log(errorMessage);
                         Console.Error.WriteLine(errorMessage);
                         Environment.Exit(1);
                     }
@@ -44,6 +46,7 @@ namespace GithookPreCommit
                     if (ReplaceCommitIdMarkerIfExists(path))
                     {
                         string errorMessage = $"{COMMIT_ID_MARKER} marker in {path} could not be replaced";
+                        Log(errorMessage);
                         Console.Error.WriteLine(errorMessage);
                         Environment.Exit(1);
                     }
@@ -76,7 +79,9 @@ namespace GithookPreCommit
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"An error has occured while reading the file in {path}", ex);
+                string errorMessage = $"An error has occured while reading the file in {path}";
+                Log(errorMessage);
+                Console.Error.WriteLine(errorMessage, ex);
                 return false;
             }
         }
@@ -109,7 +114,9 @@ namespace GithookPreCommit
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"An error has occured while checking for {NOT_FOR_REPO_MARKER} marker in {path}", ex);
+                string errorMessage = $"An error has occured while checking for {NOT_FOR_REPO_MARKER} marker in {path}";
+                Log(errorMessage);
+                Console.Error.WriteLine(errorMessage, ex);
             }
             return false;
         }
@@ -129,6 +136,7 @@ namespace GithookPreCommit
             try
             {
                 string? repositoryPath = GetRepositoryPath();
+                Log($"RepositoryPath = {repositoryPath ?? string.Empty}");
                 if (repositoryPath is null || !Directory.Exists(repositoryPath))
                 {
                     return false;
@@ -145,7 +153,9 @@ namespace GithookPreCommit
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"An error has occured while replacing {COMMIT_ID_MARKER} marker in {path}", ex);
+                string errorMessage = $"An error has occured while replacing {COMMIT_ID_MARKER} marker in {path}";
+                Log(errorMessage);
+                Console.Error.WriteLine(errorMessage, ex);
                 return false;
             }
         }
@@ -177,6 +187,18 @@ namespace GithookPreCommit
             string? commitCommitter = headCommit?.Committer.Name;
             DateTime? commitCommitterWhen = headCommit?.Committer.When.DateTime;
             return $"$Id: {commitId} {commitAuthor} {commitCommitter} {commitCommitterWhen:o} (prev commit) $";
+        }
+
+        static void Log(string logMessage)
+        {
+            using (StreamWriter w = File.AppendText("GithookPreCommit.log"))
+            {
+                w.Write("\r\nLog Entry : ");
+                w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
+                w.WriteLine("  :");
+                w.WriteLine($"  :{logMessage}");
+                w.WriteLine("-------------------------------");
+            }
         }
     }
 }
