@@ -17,13 +17,14 @@ namespace GithookPreCommit
         private static Regex NotForRepoMarkerExpression = new(NOT_FOR_REPO_MARKER.Replace("$", @"\$", StringComparison.InvariantCultureIgnoreCase));
 
         /// <summary>
-        /// 
+        /// Entry point GitHook for TortoiseGit
         /// </summary>
-        /// <param name="args"></param>
+        /// <param name="args">files provided by TortoiseGit</param>
         static void Main(string[] args)
         {
             try
             {
+                // Iterates through all files that shall be commited.
                 string[] affectedPaths = File.ReadAllLines(args[0]);
                 foreach (string path in affectedPaths)
                 {
@@ -58,9 +59,9 @@ namespace GithookPreCommit
         }
 
         /// <summary>
-        /// 
+        /// Identifies by file extension C, JAVA, SQL or CS if a given file should be checked.
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">file path</param>
         /// <returns></returns>
         static bool ShouldFileBeChecked(string path)
         {
@@ -84,9 +85,9 @@ namespace GithookPreCommit
         }
 
         /// <summary>
-        /// 
+        /// Checks if a given file has a NotForRepo marker. If yes, the file will not be uploaded and the Githook will throw an error message.
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">file path</param>
         /// <returns></returns>
         static bool HasNotForRepoMarker(string path)
         {
@@ -119,9 +120,9 @@ namespace GithookPreCommit
         }
 
         /// <summary>
-        /// 
+        /// Checks if a given file has a NotForRepo marker. If yes, the file will not be uploaded and the Githook will throw an error message.
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">file path</param>
         /// <returns></returns>
         static bool ReplaceCommitIdMarkerIfExists(string path)
         {
@@ -158,9 +159,9 @@ namespace GithookPreCommit
         }
 
         /// <summary>
-        /// 
+        /// Gets the Git repository path from the working path.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Git repository path</returns>
         static string? GetRepositoryPath()
         {
             string? workingDirectory = Environment.CurrentDirectory;
@@ -174,9 +175,9 @@ namespace GithookPreCommit
         }
 
         /// <summary>
-        /// 
+        /// Gets latest Git commit information from HEAD for the given Git repository path.
         /// </summary>
-        /// <param name="repositoryPath"></param>
+        /// <param name="repositoryPath">Git repository path</param>
         /// <returns></returns>
         static string? GetCommitId(string repositoryPath)
         {
@@ -185,13 +186,17 @@ namespace GithookPreCommit
             string? commitId = headCommit?.Id.Sha;
             string? commitAuthor = headCommit?.Author.Name;
             string? commitCommitter = headCommit?.Committer.Name;
-            DateTime commitCommitterWhen = headCommit?.Committer.When.DateTime ?? DateTime.Now;
+            DateTimeOffset commitCommitterWhen = headCommit?.Committer.When ?? DateTimeOffset.Now;
             string result = string.Format("{0}Id: {1} {2} {3} {4} (prev commit) {0}",
                 "$", commitId, commitAuthor, commitCommitter, commitCommitterWhen.ToString("o"));
             Log(result);
             return result;
         }
 
+        /// <summary>
+        /// Logs a given message in the log file GithookPreCommit.log.
+        /// </summary>
+        /// <param name="logMessage"></param>
         static void Log(string logMessage)
         {
             using StreamWriter writer = File.AppendText("GithookPreCommit.log");
