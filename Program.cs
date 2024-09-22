@@ -48,7 +48,6 @@ namespace GithookPreCommit
                         Console.Error.WriteLine(errorMessage);
                         Environment.Exit(1);
                     }
-                    Thread.Sleep(5000);
                 }
             }
             catch (Exception ex)
