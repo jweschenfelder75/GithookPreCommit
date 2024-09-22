@@ -77,7 +77,7 @@ namespace GithookPreCommit
             catch (Exception ex)
             {
                 string errorMessage = $"An error has occured while reading the file in {path}";
-                Log(errorMessage);
+                Log($"{errorMessage}: {ex.Message} ({ex.InnerException?.Message ?? string.Empty})");
                 Console.Error.WriteLine(errorMessage, ex);
                 return false;
             }
@@ -112,7 +112,7 @@ namespace GithookPreCommit
             catch (Exception ex)
             {
                 string errorMessage = $"An error has occured while checking for {NOT_FOR_REPO_MARKER} marker in {path}";
-                Log(errorMessage);
+                Log($"{errorMessage}: {ex.Message} ({ex.InnerException?.Message ?? string.Empty})");
                 Console.Error.WriteLine(errorMessage, ex);
             }
             return false;
@@ -151,7 +151,7 @@ namespace GithookPreCommit
             catch (Exception ex)
             {
                 string errorMessage = $"An error has occured while replacing {COMMIT_ID_MARKER} marker in {path}";
-                Log(errorMessage);
+                Log($"{errorMessage}: {ex.Message} ({ex.InnerException?.Message ?? string.Empty})");
                 Console.Error.WriteLine(errorMessage, ex);
                 return false;
             }
@@ -186,16 +186,14 @@ namespace GithookPreCommit
             string? commitAuthor = headCommit?.Author.Name;
             string? commitCommitter = headCommit?.Committer.Name;
             DateTime? commitCommitterWhen = headCommit?.Committer.When.DateTime;
-            return string.Format($"{0}Id: {1} {2} {3} {4:o} (prev commit) {0}", 
+            return string.Format($"{0}Id: {1} {2} {3} {4:o} (prev commit) {0}",
                 "$", commitId, commitAuthor, commitCommitter, commitCommitterWhen);
         }
 
         static void Log(string logMessage)
         {
-            using (StreamWriter writer = File.AppendText("GithookPreCommit.log"))
-            {
-                writer.WriteLine($"{DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()} - {logMessage}");
-            }
+            using StreamWriter writer = File.AppendText("GithookPreCommit.log");
+            writer.WriteLine($"{DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()} - {logMessage}");
         }
     }
 }
