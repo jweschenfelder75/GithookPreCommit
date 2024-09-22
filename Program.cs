@@ -67,7 +67,7 @@ namespace GithookPreCommit
 
             try
             {
-                Regex filePattern = new(@"^.*\.(cs|java|aql|hsc)$", RegexOptions.IgnoreCase);
+                Regex filePattern = new(@"^.*\.(cs|java|sql|hsc)$", RegexOptions.IgnoreCase);
                 return File.Exists(path) && filePattern.IsMatch(path);
             }
             catch (Exception ex)
