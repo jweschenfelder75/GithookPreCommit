@@ -6,6 +6,8 @@ namespace GithookPreCommit
     /// <summary>
     /// $Id$
     /// 
+    /// NOT_FOR_REPO
+    /// 
     /// Documentation: https://www.codeproject.com/Articles/1161290/Save-Yourself-Some-Troubles-with-TortoiseGit-Pre-c
     /// </summary>
 
