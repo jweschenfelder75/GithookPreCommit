@@ -134,7 +134,7 @@ namespace GithookPreCommit
             {
                 string? repositoryPath = GetRepositoryPath();
                 Log($"RepositoryPath = {repositoryPath ?? string.Empty}");
-                if (!string.IsNullOrWhiteSpace(repositoryPath) || !Directory.Exists(repositoryPath))
+                if (string.IsNullOrWhiteSpace(repositoryPath) || !Directory.Exists(repositoryPath))
                 {
                     return false;
                 }
