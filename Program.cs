@@ -11,10 +11,10 @@ namespace GithookPreCommit
 
     class Program
     {
-        private const string COMMIT_ID_MARKER = "$Id$";
-        private const string COMMIT_ID_MARKER_EXPRESSION_PATTERN = @"(\\$Id(.*?)\\$)";
-        private const string NOT_FOR_REPO_MARKER = "$NotForRepo$";
-        private static Regex NotForRepoMarkerExpression = new(@"NOT_FOR_REPO");
+        private static string COMMIT_ID_MARKER = string.Format("{0}Id{0}", "$");
+        private static string COMMIT_ID_MARKER_EXPRESSION_PATTERN = string.Format(@"({0}Id(.*?){0})", @"\$");
+        private static string NOT_FOR_REPO_MARKER = string.Format("{0}NotForRepo{0}", "$");
+        private static Regex NotForRepoMarkerExpression = new(NOT_FOR_REPO_MARKER.Replace("$", @"\$", StringComparison.InvariantCultureIgnoreCase));
 
         /// <summary>
         /// 
@@ -184,18 +184,15 @@ namespace GithookPreCommit
             string? commitAuthor = headCommit?.Author.Name;
             string? commitCommitter = headCommit?.Committer.Name;
             DateTime? commitCommitterWhen = headCommit?.Committer.When.DateTime;
-            return $"$Id: {commitId} {commitAuthor} {commitCommitter} {commitCommitterWhen:o} (prev commit) $";
+            return string.Format($"{0}Id: {1} {2} {3} {4:o} (prev commit) {0}", 
+                "$", commitId, commitAuthor, commitCommitter, commitCommitterWhen);
         }
 
         static void Log(string logMessage)
         {
-            using (StreamWriter w = File.AppendText("GithookPreCommit.log"))
+            using (StreamWriter writer = File.AppendText("GithookPreCommit.log"))
             {
-                w.Write("\r\nLog Entry : ");
-                w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
-                w.WriteLine("  :");
-                w.WriteLine($"  :{logMessage}");
-                w.WriteLine("-------------------------------");
+                writer.WriteLine($"{DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()} - {logMessage}");
             }
         }
     }
