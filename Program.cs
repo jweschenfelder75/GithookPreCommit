@@ -185,9 +185,9 @@ namespace GithookPreCommit
             string? commitId = headCommit?.Id.Sha;
             string? commitAuthor = headCommit?.Author.Name;
             string? commitCommitter = headCommit?.Committer.Name;
-            DateTime? commitCommitterWhen = headCommit?.Committer.When.DateTime;
-            return string.Format($"{0}Id: {1} {2} {3} {4:o} (prev commit) {0}",
-                "$", commitId, commitAuthor, commitCommitter, commitCommitterWhen);
+            DateTime commitCommitterWhen = headCommit?.Committer.When.DateTime ?? DateTime.Now;
+            return string.Format($"{0}Id: {1} {2} {3} {4} (prev commit) {0}",
+                "$", commitId, commitAuthor, commitCommitter, commitCommitterWhen.ToString("o"));
         }
 
         static void Log(string logMessage)
