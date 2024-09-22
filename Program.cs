@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace GithookPreCommit
 {
     /// <summary>
-    /// $Id$
+    /// $Id$ 
     /// 
     /// Documentation: https://www.codeproject.com/Articles/1161290/Save-Yourself-Some-Troubles-with-TortoiseGit-Pre-c
     /// </summary>
@@ -41,7 +41,7 @@ namespace GithookPreCommit
                         Environment.Exit(1);
                     }
 
-                    if (ReplaceCommitIdMarkerIfExists(path))
+                    if (!ReplaceCommitIdMarkerIfExists(path))
                     {
                         string errorMessage = $"{COMMIT_ID_MARKER} marker in {path} could not be replaced";
                         Log(errorMessage);
