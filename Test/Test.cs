@@ -134,13 +134,17 @@ namespace GithookPreCommit
             try
             {
                 string? repositoryPath = GetRepositoryPath();
-                Log($"RepositoryPath = {repositoryPath ?? string.Empty}");
                 if (string.IsNullOrWhiteSpace(repositoryPath) || !Directory.Exists(repositoryPath))
                 {
                     return false;
                 }
 
                 string? commitId = GetCommitId(repositoryPath) ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(commitId))
+                {
+                    return false;
+                }
+
                 string currentFileVersion = File.ReadAllText(path);
                 string newFileVersion = Regex.Replace(currentFileVersion, COMMIT_ID_MARKER_EXPRESSION_PATTERN, commitId);
                 if (!newFileVersion.Equals(currentFileVersion))
@@ -164,14 +168,24 @@ namespace GithookPreCommit
         /// <returns>Git repository path</returns>
         static string? GetRepositoryPath()
         {
-            string? workingDirectory = Environment.CurrentDirectory;
-            workingDirectory = (!string.IsNullOrWhiteSpace(workingDirectory) && workingDirectory.EndsWith(@"\\"))
-                ? workingDirectory.Remove(workingDirectory.Length - 1)
-                : workingDirectory;
-            Log($"WorkingDirectory = {workingDirectory ?? string.Empty}");
-            return (!string.IsNullOrWhiteSpace(workingDirectory))
-                ? $@"{workingDirectory}\.git"
-                : null;
+            string? workingDirectory = null;
+            try
+            {
+                workingDirectory = Environment.CurrentDirectory;
+                workingDirectory = (!string.IsNullOrWhiteSpace(workingDirectory) && workingDirectory.EndsWith(@"\\"))
+                    ? workingDirectory.Remove(workingDirectory.Length - 1)
+                    : workingDirectory;
+                return (!string.IsNullOrWhiteSpace(workingDirectory))
+                    ? $@"{workingDirectory}\.git"
+                    : null;
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = $"An error has occured while retrieving Git repository path from working directory {workingDirectory ?? string.Empty}";
+                Log($"{errorMessage}: {ex.Message} ({ex.InnerException?.Message ?? string.Empty})");
+                Console.Error.WriteLine(errorMessage, ex);
+                return null;
+            }
         }
 
         /// <summary>
@@ -181,16 +195,25 @@ namespace GithookPreCommit
         /// <returns></returns>
         static string? GetCommitId(string repositoryPath)
         {
-            using var repo = new Repository(repositoryPath);
-            Commit? headCommit = repo.Head.Commits.FirstOrDefault();
-            string? commitId = headCommit?.Id.Sha;
-            string? commitAuthor = headCommit?.Author.Name;
-            string? commitCommitter = headCommit?.Committer.Name;
-            DateTimeOffset commitCommitterWhen = headCommit?.Committer.When ?? DateTimeOffset.Now;
-            string result = string.Format("{0}Id: {1} {2} {3} {4} (prev commit) {0}",
-                "$", commitId, commitAuthor, commitCommitter, commitCommitterWhen.ToString("o"));
-            Log(result);
-            return result;
+            try
+            {
+                using var repo = new Repository(repositoryPath);
+                Commit? headCommit = repo.Head.Commits.FirstOrDefault();
+                string? commitId = headCommit?.Id.Sha;
+                string? commitAuthor = headCommit?.Author.Name;
+                string? commitCommitter = headCommit?.Committer.Name;
+                DateTimeOffset commitCommitterWhen = headCommit?.Committer.When ?? DateTimeOffset.Now;
+                string result = string.Format("{0}Id: {1} {2} {3} {4} (prev commit) {0}",
+                    "$", commitId, commitAuthor, commitCommitter, commitCommitterWhen.ToString("o"));
+                return result;
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = $"An error has occured while retrieving latest Git commit information for HEAD in {repositoryPath}";
+                Log($"{errorMessage}: {ex.Message} ({ex.InnerException?.Message ?? string.Empty})");
+                Console.Error.WriteLine(errorMessage, ex);
+                return null;
+            }
         }
 
         /// <summary>
@@ -199,8 +222,15 @@ namespace GithookPreCommit
         /// <param name="logMessage"></param>
         static void Log(string logMessage)
         {
-            using StreamWriter writer = File.AppendText("GithookPreCommit.log");
-            writer.WriteLine($"{DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()} - {logMessage}");
+            try
+            {
+                using StreamWriter writer = File.AppendText("GithookPreCommit.log");
+                writer.WriteLine($"{DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()} - {logMessage}");
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.Message, ex);
+            }
         }
     }
 }
