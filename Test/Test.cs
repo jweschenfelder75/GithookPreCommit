@@ -4,12 +4,12 @@ using System.Text.RegularExpressions;
 namespace GithookPreCommit
 {
     /// <summary>
-    /// $Id$
+    /// $Id$ 
     /// 
     /// Documentation: https://www.codeproject.com/Articles/1161290/Save-Yourself-Some-Troubles-with-TortoiseGit-Pre-c
     /// </summary>
 
-    class Program
+    class ProgramTest
     {
         private static string COMMIT_ID_MARKER = string.Format("{0}Id{0}", "$");
         private static string COMMIT_ID_MARKER_EXPRESSION_PATTERN = string.Format(@"({0}Id(.*?){0})", @"\$");
