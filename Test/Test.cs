@@ -1,10 +1,10 @@
-﻿using LibGit2Sharp;
+using LibGit2Sharp;
 using System.Text.RegularExpressions;
 
 namespace GithookPreCommit
 {
     /// <summary>
-    /// $Id$ 
+    /// 0Id 
     /// 
     /// Documentation: https://www.codeproject.com/Articles/1161290/Save-Yourself-Some-Troubles-with-TortoiseGit-Pre-c
     /// </summary>
@@ -185,9 +185,11 @@ namespace GithookPreCommit
             string? commitId = headCommit?.Id.Sha;
             string? commitAuthor = headCommit?.Author.Name;
             string? commitCommitter = headCommit?.Committer.Name;
-            DateTime? commitCommitterWhen = headCommit?.Committer.When.DateTime;
-            return string.Format($"{0}Id: {1} {2} {3} {4:o} (prev commit) {0}",
-                "$", commitId, commitAuthor, commitCommitter, commitCommitterWhen);
+            DateTime commitCommitterWhen = headCommit?.Committer.When.DateTime ?? DateTime.Now;
+            string result = string.Format($"{0}Id: {1} {2} {3} {4} (prev commit) {0}",
+                "$", commitId, commitAuthor, commitCommitter, commitCommitterWhen.ToString("o"));
+            Log(result);
+            return result;
         }
 
         static void Log(string logMessage)
