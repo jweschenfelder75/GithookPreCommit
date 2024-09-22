@@ -164,6 +164,7 @@ namespace GithookPreCommit
         static string? GetRepositoryPath()
         {
             string workingDirectory = Environment.CurrentDirectory;
+            Log($"WorkingDirectory = {workingDirectory}");
             DirectoryInfo? rootDirectory = Directory.GetParent(workingDirectory)?.Parent;
             return (rootDirectory?.Parent is not null)
                 ? $@"{rootDirectory?.Parent?.FullName}\.git"
