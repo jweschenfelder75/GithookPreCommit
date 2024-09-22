@@ -14,8 +14,7 @@ namespace GithookPreCommit
         private const string COMMIT_ID_MARKER = "$Id$";
         private const string COMMIT_ID_MARKER_EXPRESSION_PATTERN = @"(\\$Id(.*?)\\$)";
         private const string NOT_FOR_REPO_MARKER = "$NotForRepo$";
-
-        private static Regex NotForRepoMarkerExpression => new(NOT_FOR_REPO_MARKER.Replace("$", @"\$", StringComparison.CurrentCultureIgnoreCase));
+        private static Regex NotForRepoMarkerExpression = new(@"NOT_FOR_REPO");
 
         /// <summary>
         /// 
