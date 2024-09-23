@@ -5,16 +5,17 @@ namespace GithookPreCommit
 {
     /// <summary>
     /// $Id: 3efa8bf40938429862c0e34202644e67d314dcb7 byte2702 byte2702 2024-09-22T18:57:23.0000000+02:00 (previous commit) $
-    /// 
-    /// Documentation: https://www.codeproject.com/Articles/1161290/Save-Yourself-Some-Troubles-with-TortoiseGit-Pre-c
+    ///
+    /// General documentation: https://www.codeproject.com/Articles/1161290/Save-Yourself-Some-Troubles-with-TortoiseGit-Pre-c
     /// </summary>
 
     class Program
     {
-        private static string COMMIT_ID_MARKER = string.Format("{0}Id{0}", "$");
-        private static string COMMIT_ID_MARKER_EXPRESSION_PATTERN = string.Format(@"({0}Id(.*?){0})", @"\$");
-        private static string NOT_FOR_REPO_MARKER = string.Format("{0}NotForRepo{0}", "$");
-        private static Regex NotForRepoMarkerExpression = new(NOT_FOR_REPO_MARKER.Replace("$", @"\$", StringComparison.InvariantCultureIgnoreCase));
+        // We write it that complicated so that it is not confused by the markers that shall be replaced, it would be fatal if the source code itself would be replaced.
+        private static readonly string COMMIT_ID_MARKER = string.Format("{0}Id{0}", "$");
+        private static readonly string COMMIT_ID_MARKER_EXPRESSION_PATTERN = string.Format(@"({0}Id(.*?){0})", @"\$");
+        private static readonly string NOT_FOR_REPO_MARKER = string.Format("{0}NotForRepo{0}", "$");
+        private static readonly Regex NotForRepoMarkerExpression = new(NOT_FOR_REPO_MARKER.Replace("$", @"\$", StringComparison.InvariantCultureIgnoreCase));
 
         /// <summary>
         /// Entry point GitHook for TortoiseGit
@@ -62,7 +63,7 @@ namespace GithookPreCommit
         /// Identifies by file extension C, JAVA, SQL or CS if a given file should be checked.
         /// </summary>
         /// <param name="path">file path</param>
-        /// <returns></returns>
+        /// <returns>true if the file shall be checked, otherwise false</returns>
         static bool ShouldFileBeChecked(string path)
         {
             if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
@@ -88,7 +89,7 @@ namespace GithookPreCommit
         /// Checks if a given file has a NotForRepo marker. If yes, the file will not be uploaded and the Githook will throw an error message.
         /// </summary>
         /// <param name="path">file path</param>
-        /// <returns></returns>
+        /// <returns>true if it contains the NotForRepo marker, otherwise false</returns>
         static bool HasNotForRepoMarker(string path)
         {
             if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
@@ -120,10 +121,10 @@ namespace GithookPreCommit
         }
 
         /// <summary>
-        /// Checks if a given file has a NotForRepo marker. If yes, the file will not be uploaded and the Githook will throw an error message.
+        /// Checks if a given file has a Id marker. If yes, it will try to replace the Id marker accordingly.
         /// </summary>
         /// <param name="path">file path</param>
-        /// <returns></returns>
+        /// <returns>true if the replacement was successful, otherwise false</returns>
         static bool ReplaceCommitIdMarkerIfExists(string path)
         {
             if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
@@ -165,7 +166,7 @@ namespace GithookPreCommit
         /// <summary>
         /// Gets the Git repository path from the working path.
         /// </summary>
-        /// <returns>Git repository path</returns>
+        /// <returns>Git repository path or null</returns>
         static string? GetRepositoryPath()
         {
             string? workingDirectory = null;
@@ -192,7 +193,7 @@ namespace GithookPreCommit
         /// Gets latest Git commit information from HEAD for the given Git repository path.
         /// </summary>
         /// <param name="repositoryPath">Git repository path</param>
-        /// <returns></returns>
+        /// <returns>the latest Git commit information or null</returns>
         static string? GetCommitId(string repositoryPath)
         {
             try
@@ -229,7 +230,7 @@ namespace GithookPreCommit
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.Message ,ex);
+                Console.Error.WriteLine(ex.Message, ex);
             }
         }
     }
